@@ -1,8 +1,9 @@
 import { getStories } from '@/lib/actions/storyActions';
-import { StoryList } from '@/components/StoryList';
 import { Header } from '@/components/Header';
+import { STORY_CATEGORIES } from '@/types/story';
+import { BrowseStoriesContent } from '@/components/BrowseStoriesContent';
 
-export default async function Home() {
+export default async function BrowsePage() {
   const stories = await getStories();
 
   return (
@@ -19,39 +20,34 @@ export default async function Home() {
       </div>
 
       <div className="relative z-10">
-        {/* Header with Auth */}
         <Header />
 
         {/* Hero Section */}
         <section className="py-12 px-6 text-center">
           <div className="max-w-3xl mx-auto">
+            <span className="inline-block px-4 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium mb-4 border border-indigo-500/20">
+              Discover Magic
+            </span>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-              Magical Stories for
-              <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                {' '}Peaceful Nights
+              Browse Stories by
+              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                {' '}Category
               </span>
             </h2>
-            <p className="text-lg text-indigo-200/70 max-w-xl mx-auto">
-              Discover enchanting bedtime stories shared by dreamers around the world. 
-              Read, share, and drift off to sleep with tales of wonder.
+            <p className="text-lg text-indigo-200/70 max-w-xl mx-auto leading-relaxed">
+              Find the perfect bedtime story by exploring our magical categories. 
+              Each tale awaits to whisk you away to dreamland.
             </p>
           </div>
         </section>
 
-        {/* Stories Section */}
+        {/* Browse Content */}
         <main className="py-8 px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <span>📚</span>
-                Latest Stories
-              </h3>
-              <span className="text-indigo-300/60 text-sm">
-                {stories.length} {stories.length === 1 ? 'story' : 'stories'}
-              </span>
-            </div>
-            
-            <StoryList stories={stories} />
+          <div className="max-w-7xl mx-auto">
+            <BrowseStoriesContent 
+              stories={stories} 
+              categories={STORY_CATEGORIES} 
+            />
           </div>
         </main>
 

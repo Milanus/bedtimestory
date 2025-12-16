@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Stories collection
+    match /stories/{storyId} {
+      // Anyone can read stories
+      allow read: if true;
+      
+      // Only authenticated users can create stories
+      allow create: if request.auth != null;
+      
+      // Story owner can update/delete their own stories
+      // Allow likeCount updates via transaction (field-level validation)
+      allow update: if request.auth != null && (
+        // Owner can update anything
+        resource.data.authorId == request.auth.uid ||
+        // Anyone authenticated can update ONLY likeCount (for like/unlike)
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount']) &&
+          request.resource.data.likeCount is int &&
+          request.resource.data.likeCount >= 0 &&
+          // Only allow increment/decrement by 1
+          (request.resource.data.likeCount == resource.data.likeCount + 1 ||
+           request.resource.data.likeCount == resource.data.likeCount - 1)
+        )
+      );
+      
+      allow delete: if request.auth != null && resource.data.authorId == request.auth.uid;
+      
+      // Likes sub-collection
+      match /likes/{userId} {
+        // Anyone can read likes (to check if user has liked)
+        allow read: if true;
+        
+        // Users can only create/delete their own like documents
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow delete: if request.auth != null && request.auth.uid == userId;
+        
+        // No updates allowed - likes are binary (exist or don't exist)
+        allow update: if false;
+      }
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Anyone can read user data
+      allow read: if true;
+      
+      // Users can only create their own profile
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Users can update their own data, but not isAdmin flag
+      allow update: if request.auth != null &&
+        request.auth.uid == userId &&
+        !('isAdmin' in request.resource.data.diff(resource.data));
+    }
+  }
+}
