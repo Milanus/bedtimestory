@@ -11,6 +11,7 @@ import {
   updateDoc,
   deleteDoc,
   query,
+  where,
   orderBy,
   Timestamp,
   serverTimestamp,
@@ -83,6 +84,41 @@ export async function getStories(): Promise<SerializedStory[]> {
     return stories;
   } catch (error) {
     console.error('Error fetching stories:', error);
+    return [];
+  }
+}
+
+// Get stories by author ID
+export async function getStoriesByAuthor(authorId: string): Promise<SerializedStory[]> {
+  try {
+    const q = query(
+      collection(db, STORIES_COLLECTION),
+      where('authorId', '==', authorId)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const stories: SerializedStory[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      stories.push({
+        id: doc.id,
+        title: data.title,
+        content: data.content,
+        category: data.category || 'adventure',
+        authorId: data.authorId,
+        authorName: data.authorName,
+        likeCount: data.likeCount || 0,
+        createdAt: serializeTimestamp(data.createdAt),
+        updatedAt: data.updatedAt ? serializeTimestamp(data.updatedAt) : undefined,
+      });
+    });
+
+    // Sort by createdAt on the client side to avoid needing a composite index
+    return stories.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  } catch (error) {
+    console.error('Error fetching stories by author:', error);
     return [];
   }
 }

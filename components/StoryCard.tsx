@@ -32,7 +32,7 @@ export function StoryCard({ story, showActions = false, onDelete }: StoryCardPro
   const categoryInfo = getCategoryInfo(story.category);
 
   return (
-    <article className="group relative bg-gradient-to-br from-indigo-900/40 to-purple-900/40 backdrop-blur-sm rounded-2xl p-6 border border-indigo-500/20 hover:border-indigo-400/40 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10">
+    <article className="group relative bg-gradient-to-br from-indigo-900/40 to-purple-900/40 backdrop-blur-sm rounded-2xl p-6 border border-indigo-500/20 hover:border-indigo-400/40 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10 flex flex-col h-full">
       {/* Decorative stars */}
       <div className="absolute top-4 right-4 text-yellow-300/60 text-xs">✦</div>
       <div className="absolute top-8 right-8 text-yellow-300/40 text-[10px]">✦</div>
@@ -45,17 +45,17 @@ export function StoryCard({ story, showActions = false, onDelete }: StoryCardPro
         </span>
       </div>
       
-      <Link href={`/stories/${story.id}`} className="block">
-        <h2 className="text-xl font-semibold text-white mb-2 group-hover:text-indigo-200 transition-colors">
+      <Link href={`/stories/${story.id}`} className="block flex-1 flex flex-col">
+        <h2 className="text-xl font-semibold text-white mb-2 group-hover:text-indigo-200 transition-colors line-clamp-2">
           {story.title}
         </h2>
         
-        <p className="text-indigo-200/70 text-sm mb-4 leading-relaxed">
+        <p className="text-indigo-200/70 text-sm mb-4 leading-relaxed line-clamp-3">
           {truncateContent(story.content)}
         </p>
       </Link>
 
-      <div className="flex items-center justify-between text-xs text-indigo-300/60">
+      <div className="flex items-center justify-between text-xs text-indigo-300/60 mt-auto">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
             <span className="text-indigo-400">✍</span>

@@ -37,6 +37,16 @@ export function Header() {
             Browse Stories
           </Link>
 
+          {/* Dashboard Link - Visible when logged in */}
+          {user && (
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 text-indigo-200 hover:text-white transition-all duration-300 font-medium rounded-full hover:bg-indigo-600/30 border border-transparent hover:border-indigo-500/30"
+            >
+              Dashboard
+            </Link>
+          )}
+
           {loading ? (
             <div className="w-8 h-8 rounded-full bg-indigo-600/30 animate-pulse"></div>
           ) : user ? (
