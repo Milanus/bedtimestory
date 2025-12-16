@@ -1,28 +1,49 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Heart } from 'lucide-react';
-import { toggleLike } from '@/lib/actions/toggleLike';
+import { toggleLike, checkUserLiked } from '@/lib/actions/toggleLike';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LikeButtonProps {
   storyId: string;
-  userId: string;
   initialLikeCount: number;
-  initialUserHasLiked: boolean;
 }
 
 export default function LikeButton({
   storyId,
-  userId,
   initialLikeCount,
-  initialUserHasLiked,
 }: LikeButtonProps) {
+  const { user } = useAuth();
   const [likeCount, setLikeCount] = useState(initialLikeCount);
-  const [hasLiked, setHasLiked] = useState(initialUserHasLiked);
+  const [hasLiked, setHasLiked] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isLoadingLikeStatus, setIsLoadingLikeStatus] = useState(true);
+
+  // Check if user has liked this story
+  useEffect(() => {
+    async function checkLikeStatus() {
+      if (user) {
+        try {
+          const liked = await checkUserLiked(storyId, user.uid);
+          setHasLiked(liked);
+        } catch (error) {
+          console.error('Failed to check like status:', error);
+        }
+      }
+      setIsLoadingLikeStatus(false);
+    }
+    checkLikeStatus();
+  }, [storyId, user]);
 
   const handleClick = async () => {
+    // Must be logged in to like
+    if (!user) {
+      alert('Please log in to like stories');
+      return;
+    }
+
     // Prevent multiple clicks while processing
     if (isPending) return;
 
@@ -40,7 +61,7 @@ export default function LikeButton({
 
     startTransition(async () => {
       try {
-        const result = await toggleLike(storyId, userId);
+        const result = await toggleLike(storyId, user.uid);
         // Update with actual server values
         setHasLiked(result.liked);
         setLikeCount(result.likeCount);

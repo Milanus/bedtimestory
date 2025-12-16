@@ -13,6 +13,7 @@ import {
   query,
   where,
   orderBy,
+  increment,
   Timestamp,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -33,18 +34,24 @@ export async function createStory(data: {
   category: StoryCategory;
   authorId: string;
   authorName?: string;
+  imageUrl?: string;
+  soundUrl?: string;
 }): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
-    const docRef = await addDoc(collection(db, STORIES_COLLECTION), {
+    const storyData = {
       title: data.title,
       content: data.content,
       category: data.category,
       authorId: data.authorId,
       authorName: data.authorName || 'Anonymous',
+      imageUrl: data.imageUrl || null,
+      soundUrl: data.soundUrl || null,
       likeCount: 0,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    });
+    };
+
+    const docRef = await addDoc(collection(db, STORIES_COLLECTION), storyData);
 
     revalidatePath('/');
     revalidatePath('/stories');
@@ -59,29 +66,25 @@ export async function createStory(data: {
 // Get all stories (returns serialized stories for client components)
 export async function getStories(): Promise<SerializedStory[]> {
   try {
-    const q = query(
-      collection(db, STORIES_COLLECTION),
-      orderBy('createdAt', 'desc')
-    );
+    const storiesRef = collection(db, 'stories');
+    const q = query(storiesRef, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
-
-    const stories: SerializedStory[] = [];
-    querySnapshot.forEach((doc) => {
+    
+    const stories = querySnapshot.docs.map(doc => {
       const data = doc.data();
-      stories.push({
+      return {
         id: doc.id,
-        title: data.title,
-        content: data.content,
+        ...data,
         category: data.category || 'adventure',
-        authorId: data.authorId,
-        authorName: data.authorName,
-        likeCount: data.likeCount || 0,
-        createdAt: serializeTimestamp(data.createdAt),
-        updatedAt: data.updatedAt ? serializeTimestamp(data.updatedAt) : undefined,
-      });
+        imageUrl: data.imageUrl || undefined,
+        soundUrl: data.soundUrl || undefined,
+        createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+        updatedAt: data.updatedAt?.toDate().toISOString() || new Date().toISOString(),
+      } as SerializedStory;
     });
 
-    return stories;
+    // Sort by createdAt on client side
+    return stories.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch (error) {
     console.error('Error fetching stories:', error);
     return [];
@@ -91,32 +94,25 @@ export async function getStories(): Promise<SerializedStory[]> {
 // Get stories by author ID
 export async function getStoriesByAuthor(authorId: string): Promise<SerializedStory[]> {
   try {
-    const q = query(
-      collection(db, STORIES_COLLECTION),
-      where('authorId', '==', authorId)
-    );
+    const storiesRef = collection(db, 'stories');
+    const q = query(storiesRef, where('authorId', '==', authorId));
     const querySnapshot = await getDocs(q);
-
-    const stories: SerializedStory[] = [];
-    querySnapshot.forEach((doc) => {
+    
+    const stories = querySnapshot.docs.map(doc => {
       const data = doc.data();
-      stories.push({
+      return {
         id: doc.id,
-        title: data.title,
-        content: data.content,
+        ...data,
         category: data.category || 'adventure',
-        authorId: data.authorId,
-        authorName: data.authorName,
-        likeCount: data.likeCount || 0,
-        createdAt: serializeTimestamp(data.createdAt),
-        updatedAt: data.updatedAt ? serializeTimestamp(data.updatedAt) : undefined,
-      });
+        imageUrl: data.imageUrl || undefined,
+        soundUrl: data.soundUrl || undefined,
+        createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+        updatedAt: data.updatedAt?.toDate().toISOString() || new Date().toISOString(),
+      } as SerializedStory;
     });
 
-    // Sort by createdAt on the client side to avoid needing a composite index
-    return stories.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    // Sort by createdAt on client side
+    return stories.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch (error) {
     console.error('Error fetching stories by author:', error);
     return [];
@@ -126,25 +122,23 @@ export async function getStoriesByAuthor(authorId: string): Promise<SerializedSt
 // Get a single story by ID (returns serialized story for client components)
 export async function getStoryById(id: string): Promise<SerializedStory | null> {
   try {
-    const docRef = doc(db, STORIES_COLLECTION, id);
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
+    const storyRef = doc(db, 'stories', id);
+    const storyDoc = await getDoc(storyRef);
+    
+    if (!storyDoc.exists()) {
       return null;
     }
 
-    const data = docSnap.data();
+    const data = storyDoc.data();
     return {
-      id: docSnap.id,
-      title: data.title,
-      content: data.content,
+      id: storyDoc.id,
+      ...data,
       category: data.category || 'adventure',
-      authorId: data.authorId,
-      authorName: data.authorName,
-      likeCount: data.likeCount || 0,
-      createdAt: serializeTimestamp(data.createdAt),
-      updatedAt: data.updatedAt ? serializeTimestamp(data.updatedAt) : undefined,
-    };
+      imageUrl: data.imageUrl || undefined,
+      soundUrl: data.soundUrl || undefined,
+      createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+      updatedAt: data.updatedAt?.toDate().toISOString() || new Date().toISOString(),
+    } as SerializedStory;
   } catch (error) {
     console.error('Error fetching story:', error);
     return null;
@@ -157,11 +151,14 @@ export async function updateStory(
   data: {
     title?: string;
     content?: string;
+    category?: string;
+    imageUrl?: string;
+    soundUrl?: string;
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const docRef = doc(db, STORIES_COLLECTION, id);
-    await updateDoc(docRef, {
+    const storyRef = doc(db, 'stories', id);
+    await updateDoc(storyRef, {
       ...data,
       updatedAt: serverTimestamp(),
     });
@@ -182,8 +179,8 @@ export async function deleteStory(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const docRef = doc(db, STORIES_COLLECTION, id);
-    await deleteDoc(docRef);
+    const storyRef = doc(db, 'stories', id);
+    await deleteDoc(storyRef);
 
     revalidatePath('/');
     revalidatePath('/stories');
@@ -192,5 +189,19 @@ export async function deleteStory(
   } catch (error) {
     console.error('Error deleting story:', error);
     return { success: false, error: 'Failed to delete story' };
+  }
+}
+
+// Toggle like on a story
+export async function toggleLike(storyId: string, shouldIncrement: boolean): Promise<void> {
+  try {
+    const storyRef = doc(db, 'stories', storyId);
+    const { increment: incrementValue } = await import('firebase/firestore');
+    await updateDoc(storyRef, {
+      likeCount: incrementValue(shouldIncrement ? 1 : -1),
+    });
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    throw error;
   }
 }

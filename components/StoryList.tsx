@@ -65,7 +65,7 @@ export function StoryList({ stories, showActions = false }: StoryListProps) {
           <StoryCard
             story={story}
             showActions={showActions}
-            onDelete={handleDelete}
+            onDelete={() => handleDelete(story.id)}
           />
         </div>
       ))}

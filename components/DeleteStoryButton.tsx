@@ -6,9 +6,10 @@ import { deleteStory } from '@/lib/actions/storyActions';
 
 interface DeleteStoryButtonProps {
   storyId: string;
+  onDelete?: () => void;
 }
 
-export function DeleteStoryButton({ storyId }: DeleteStoryButtonProps) {
+export function DeleteStoryButton({ storyId, onDelete }: DeleteStoryButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -18,6 +19,9 @@ export function DeleteStoryButton({ storyId }: DeleteStoryButtonProps) {
       try {
         const result = await deleteStory(storyId);
         if (result.success) {
+          if (onDelete) {
+            onDelete();
+          }
           router.push('/');
           router.refresh();
         } else {

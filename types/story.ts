@@ -5,7 +5,7 @@ export const STORY_CATEGORIES = [
   { value: 'adventure', label: 'Adventure', emoji: '🗺️' },
   { value: 'fantasy', label: 'Fantasy', emoji: '🧚' },
   { value: 'animals', label: 'Animals', emoji: '🐻' },
-  { value: 'fairy-tale', label: 'Fairy Tale', emoji: '👸' },
+  { value: 'fairytale', label: 'Fairy Tale', emoji: '👸' },
   { value: 'nature', label: 'Nature', emoji: '🌲' },
   { value: 'space', label: 'Space', emoji: '🚀' },
   { value: 'friendship', label: 'Friendship', emoji: '💕' },
@@ -21,12 +21,14 @@ export interface Story {
   id: string;
   title: string;
   content: string;
-  category: StoryCategory;
   authorId: string;
-  authorName?: string;
+  authorName: string;
+  category: StoryCategory;
+  imageUrl?: string;      // New: URL to title image
+  soundUrl?: string;      // New: URL to background sound
   likeCount: number;
-  createdAt: Timestamp;
-  updatedAt?: Timestamp;
+  createdAt: Timestamp | Date;
+  updatedAt: Timestamp | Date;
 }
 
 // Serialized Story type for client components
@@ -34,12 +36,14 @@ export interface SerializedStory {
   id: string;
   title: string;
   content: string;
-  category: StoryCategory;
   authorId: string;
-  authorName?: string;
+  authorName: string;
+  category: StoryCategory;
+  imageUrl?: string;      // New: URL to title image
+  soundUrl?: string;      // New: URL to background sound
   likeCount: number;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 }
 
 export interface StoryLike {
@@ -48,6 +52,12 @@ export interface StoryLike {
 
 // Helper function to serialize a story for client components
 export function serializeStory(story: Story): SerializedStory {
+  const toISOString = (dateOrTimestamp: Timestamp | Date | undefined): string => {
+    if (!dateOrTimestamp) return new Date().toISOString();
+    if (dateOrTimestamp instanceof Date) return dateOrTimestamp.toISOString();
+    return dateOrTimestamp.toDate().toISOString();
+  };
+
   return {
     id: story.id,
     title: story.title,
@@ -55,8 +65,10 @@ export function serializeStory(story: Story): SerializedStory {
     category: story.category,
     authorId: story.authorId,
     authorName: story.authorName,
+    imageUrl: story.imageUrl,
+    soundUrl: story.soundUrl,
     likeCount: story.likeCount,
-    createdAt: story.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-    updatedAt: story.updatedAt?.toDate?.()?.toISOString(),
+    createdAt: toISOString(story.createdAt),
+    updatedAt: toISOString(story.updatedAt),
   };
 }
