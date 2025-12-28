@@ -36,6 +36,7 @@ export async function createStory(data: {
   authorName?: string;
   imageUrl?: string;
   soundUrl?: string;
+  youtubeUrl?: string;
 }): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
     const storyData = {
@@ -46,6 +47,7 @@ export async function createStory(data: {
       authorName: data.authorName || 'Anonymous',
       imageUrl: data.imageUrl || null,
       soundUrl: data.soundUrl || null,
+      youtubeUrl: data.youtubeUrl || null,
       likeCount: 0,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -106,6 +108,7 @@ export async function getStoriesByAuthor(authorId: string): Promise<SerializedSt
         category: data.category || 'adventure',
         imageUrl: data.imageUrl || undefined,
         soundUrl: data.soundUrl || undefined,
+        youtubeUrl: data.youtubeUrl || undefined,
         createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
         updatedAt: data.updatedAt?.toDate().toISOString() || new Date().toISOString(),
       } as SerializedStory;
@@ -136,6 +139,7 @@ export async function getStoryById(id: string): Promise<SerializedStory | null> 
       category: data.category || 'adventure',
       imageUrl: data.imageUrl || undefined,
       soundUrl: data.soundUrl || undefined,
+      youtubeUrl: data.youtubeUrl || undefined,
       createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
       updatedAt: data.updatedAt?.toDate().toISOString() || new Date().toISOString(),
     } as SerializedStory;

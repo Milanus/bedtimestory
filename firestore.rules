@@ -56,5 +56,25 @@ service cloud.firestore {
         request.auth.uid == userId &&
         !('isAdmin' in request.resource.data.diff(resource.data));
     }
+    
+    // Top-level Likes collection
+    match /likes/{likeId} {
+      // Anyone can read likes
+      allow read: if true;
+      
+      // Only authenticated users can create likes
+      // Document ID must be in format: {userId}_{storyId}
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId &&
+        request.resource.data.storyId is string &&
+        request.resource.data.createdAt is timestamp;
+      
+      // Users can only delete their own likes
+      allow delete: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      
+      // No updates allowed - likes are immutable
+      allow update: if false;
+    }
   }
 }

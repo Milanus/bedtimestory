@@ -22,6 +22,7 @@ export function StoryForm({ story, mode }: StoryFormProps) {
   const [content, setContent] = useState(story?.content || '');
   const [category, setCategory] = useState<StoryCategory>(story?.category || 'adventure');
   const [authorName, setAuthorName] = useState(story?.authorName || '');
+  const [youtubeUrl, setYoutubeUrl] = useState(story?.youtubeUrl || '');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [soundFile, setSoundFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | undefined>(story?.imageUrl);
@@ -128,6 +129,7 @@ export function StoryForm({ story, mode }: StoryFormProps) {
           authorName: authorName.trim() || user?.displayName || 'Anonymous',
           imageUrl,
           soundUrl,
+          youtubeUrl: youtubeUrl.trim(),
         });
 
         if (result.success) {
@@ -196,6 +198,21 @@ export function StoryForm({ story, mode }: StoryFormProps) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* YouTube Link */}
+      <div>
+        <label htmlFor="youtubeUrl" className="block text-sm font-medium text-indigo-200 mb-2">
+          YouTube Link (Optional)
+        </label>
+        <input
+          type="url"
+          id="youtubeUrl"
+          value={youtubeUrl}
+          onChange={(e) => setYoutubeUrl(e.target.value)}
+          className="w-full px-4 py-3 bg-indigo-900/30 border border-indigo-500/30 rounded-lg text-white placeholder-indigo-300/50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
+          placeholder="https://www.youtube.com/watch?v=..."
+        />
       </div>
 
       {/* Image Upload */}

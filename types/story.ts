@@ -26,6 +26,7 @@ export interface Story {
   category: StoryCategory;
   imageUrl?: string;      // New: URL to title image
   soundUrl?: string;      // New: URL to background sound
+  youtubeUrl: string;     // YouTube link
   likeCount: number;
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
@@ -41,6 +42,7 @@ export interface SerializedStory {
   category: StoryCategory;
   imageUrl?: string;      // New: URL to title image
   soundUrl?: string;      // New: URL to background sound
+  youtubeUrl?: string;    // YouTube link
   likeCount: number;
   createdAt: string;
   updatedAt: string;
@@ -48,6 +50,22 @@ export interface SerializedStory {
 
 export interface StoryLike {
   createdAt: Timestamp;
+}
+
+// Like in top-level likes collection
+export interface Like {
+  id: string;
+  userId: string;
+  storyId: string;
+  createdAt: Timestamp | Date;
+}
+
+// Serialized Like for client components
+export interface SerializedLike {
+  id: string;
+  userId: string;
+  storyId: string;
+  createdAt: string;
 }
 
 // Helper function to serialize a story for client components
@@ -67,6 +85,7 @@ export function serializeStory(story: Story): SerializedStory {
     authorName: story.authorName,
     imageUrl: story.imageUrl,
     soundUrl: story.soundUrl,
+    youtubeUrl: story.youtubeUrl || undefined,
     likeCount: story.likeCount,
     createdAt: toISOString(story.createdAt),
     updatedAt: toISOString(story.updatedAt),

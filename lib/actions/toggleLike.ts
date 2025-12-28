@@ -20,6 +20,8 @@ export async function toggleLike(
 ): Promise<{ liked: boolean; likeCount: number }> {
   const storyRef = doc(db, 'stories', storyId);
   const likeRef = doc(db, 'stories', storyId, 'likes', userId);
+  // Reference to the top-level likes collection
+  const topLevelLikeRef = doc(db, 'likes', `${userId}_${storyId}`);
 
   return runTransaction(db, async (transaction) => {
     // Check if the user has already liked this story
@@ -33,8 +35,9 @@ export async function toggleLike(
     const currentLikeCount = storyDoc.data()?.likeCount ?? 0;
 
     if (likeDoc.exists()) {
-      // User wants to UNLIKE - remove the like document
+      // User wants to UNLIKE - remove the like documents
       transaction.delete(likeRef);
+      transaction.delete(topLevelLikeRef);
 
       // Decrement likeCount (prevent going below 0)
       const newLikeCount = Math.max(0, currentLikeCount - 1);
@@ -42,8 +45,17 @@ export async function toggleLike(
 
       return { liked: false, likeCount: newLikeCount };
     } else {
-      // User wants to LIKE - create the like document
-      transaction.set(likeRef, {
+      // User wants to LIKE - create the like documents
+      const likeData = {
+        createdAt: serverTimestamp(),
+      };
+      
+      transaction.set(likeRef, likeData);
+      
+      // Create document in top-level likes collection
+      transaction.set(topLevelLikeRef, {
+        userId,
+        storyId,
         createdAt: serverTimestamp(),
       });
 
