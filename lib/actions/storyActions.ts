@@ -30,6 +30,7 @@ function serializeTimestamp(timestamp: Timestamp | null | undefined): string {
 // Create a new story
 export async function createStory(data: {
   title: string;
+  description?: string;
   content: string;
   category: StoryCategory;
   authorId: string;
@@ -41,6 +42,7 @@ export async function createStory(data: {
   try {
     const storyData = {
       title: data.title,
+      description: data.description || null,
       content: data.content,
       category: data.category,
       authorId: data.authorId,
@@ -154,6 +156,7 @@ export async function updateStory(
   id: string,
   data: {
     title?: string;
+    description?: string;
     content?: string;
     category?: string;
     imageUrl?: string;

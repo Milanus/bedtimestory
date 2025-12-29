@@ -19,6 +19,7 @@ export function StoryForm({ story, mode }: StoryFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   const [title, setTitle] = useState(story?.title || '');
+  const [description, setDescription] = useState(story?.description || '');
   const [content, setContent] = useState(story?.content || '');
   const [category, setCategory] = useState<StoryCategory>(story?.category || 'adventure');
   const [authorName, setAuthorName] = useState(story?.authorName || '');
@@ -111,6 +112,7 @@ export function StoryForm({ story, mode }: StoryFormProps) {
       if (mode === 'edit' && story) {
         const result = await updateStory(story.id, {
           title: title.trim(),
+          description: description.trim(),
           content: content.trim(),
         });
 
@@ -123,6 +125,7 @@ export function StoryForm({ story, mode }: StoryFormProps) {
       } else {
         const result = await createStory({
           title: title.trim(),
+          description: description.trim(),
           content: content.trim(),
           category,
           authorId: user?.uid || 'anonymous',
@@ -198,6 +201,27 @@ export function StoryForm({ story, mode }: StoryFormProps) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Description */}
+      <div>
+        <label htmlFor="description" className="block text-sm font-medium text-indigo-200 mb-2">
+          Short Description (Optional, max 200 characters)
+        </label>
+        <textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={2}
+          maxLength={200}
+          className="w-full px-4 py-3 bg-indigo-900/30 border border-indigo-500/30 rounded-lg text-white placeholder-indigo-300/50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent resize-none"
+          placeholder="A brief description of your story (max 200 characters)..."
+        />
+        {description && (
+          <p className="mt-1 text-xs text-indigo-300/60">
+            {description.length}/200 characters
+          </p>
+        )}
       </div>
 
       {/* YouTube Link */}

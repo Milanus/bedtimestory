@@ -49,12 +49,11 @@ export async function getLikesByUser(userId: string): Promise<SerializedLike[]> 
     const likesRef = collection(db, LIKES_COLLECTION);
     const q = query(
       likesRef,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', userId)
     );
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => {
+    const likes = querySnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -63,6 +62,11 @@ export async function getLikesByUser(userId: string): Promise<SerializedLike[]> 
         createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
       } as SerializedLike;
     });
+    
+    // Sort on client side to avoid needing a Firestore index
+    likes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    return likes;
   } catch (error) {
     console.error('Error fetching likes by user:', error);
     return [];

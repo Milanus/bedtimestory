@@ -20,6 +20,7 @@ export type StoryCategory = typeof STORY_CATEGORIES[number]['value'];
 export interface Story {
   id: string;
   title: string;
+  description?: string;   // Short description/subtitle
   content: string;
   authorId: string;
   authorName: string;
@@ -36,6 +37,7 @@ export interface Story {
 export interface SerializedStory {
   id: string;
   title: string;
+  description?: string;   // Short description/subtitle
   content: string;
   authorId: string;
   authorName: string;

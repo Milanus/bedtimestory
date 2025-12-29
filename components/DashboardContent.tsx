@@ -7,17 +7,19 @@ import { StoryList } from './StoryList';
 import { UserList } from './UserList';
 import { SerializedStory } from '@/types/story';
 import { User } from '@/types/user';
-import { getStories, getStoriesByAuthor } from '@/lib/actions/storyActions';
+import { getStories, getStoriesByAuthor, getStoryById } from '@/lib/actions/storyActions';
 import { checkIfUserIsAdmin, getAllUsers } from '@/lib/actions/userActions';
+import { getLikesByUser } from '@/lib/actions/likeActions';
 
 export function DashboardContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [stories, setStories] = useState<SerializedStory[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [favorites, setFavorites] = useState<SerializedStory[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState<'stories' | 'users'>('stories');
+  const [activeTab, setActiveTab] = useState<'stories' | 'users' | 'favorites'>('stories');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -51,6 +53,25 @@ export function DashboardContent() {
         const userStories = await getStoriesByAuthor(user.uid);
         setStories(userStories);
       }
+
+      // Load favorite stories for all users
+      console.log('[Dashboard] Fetching likes for user:', user.uid);
+      const userLikes = await getLikesByUser(user.uid);
+      console.log('[Dashboard] User likes:', userLikes);
+      console.log('[Dashboard] Number of likes:', userLikes.length);
+      
+      const favoriteStories = await Promise.all(
+        userLikes.map(async (like) => {
+          console.log('[Dashboard] Fetching story for ID:', like.storyId);
+          const story = await getStoryById(like.storyId);
+          console.log('[Dashboard] Story fetched:', story ? `${story.title} (${story.id})` : 'null');
+          return story;
+        })
+      );
+      console.log('[Dashboard] Total favorite stories fetched:', favoriteStories.length);
+      console.log('[Dashboard] Non-null stories:', favoriteStories.filter(s => s !== null).length);
+      
+      setFavorites(favoriteStories.filter((story): story is SerializedStory => story !== null));
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -118,31 +139,41 @@ export function DashboardContent() {
         </div>
       </div>
 
-      {/* Tabs (Admin Only) */}
-      {isAdmin && (
-        <div className="flex gap-2 mb-6 border-b border-indigo-500/20">
-          <button
-            onClick={() => setActiveTab('stories')}
-            className={`px-6 py-3 font-medium transition-all ${
-              activeTab === 'stories'
-                ? 'text-white border-b-2 border-indigo-400'
-                : 'text-indigo-300/60 hover:text-indigo-200'
-            }`}
-          >
-            📚 Stories ({stories.length})
-          </button>
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6 border-b border-indigo-500/20">
+        <button
+          onClick={() => setActiveTab('stories')}
+          className={`px-6 py-3 font-bold transition-all rounded-t-lg ${
+            activeTab === 'stories'
+              ? 'text-white border-b-2 border-indigo-400 bg-indigo-900/30'
+              : 'text-indigo-200 hover:text-white bg-indigo-900/10 hover:bg-indigo-900/20'
+          }`}
+        >
+          📚 {isAdmin ? 'Stories' : 'My Stories'} ({stories.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('favorites')}
+          className={`px-6 py-3 font-bold transition-all rounded-t-lg ${
+            activeTab === 'favorites'
+              ? 'text-white border-b-2 border-indigo-400 bg-indigo-900/30'
+              : 'text-indigo-200 hover:text-white bg-indigo-900/10 hover:bg-indigo-900/20'
+          }`}
+        >
+          ❤️ Favorites ({favorites.length})
+        </button>
+        {isAdmin && (
           <button
             onClick={() => setActiveTab('users')}
-            className={`px-6 py-3 font-medium transition-all ${
+            className={`px-6 py-3 font-bold transition-all rounded-t-lg ${
               activeTab === 'users'
-                ? 'text-white border-b-2 border-indigo-400'
-                : 'text-indigo-300/60 hover:text-indigo-200'
+                ? 'text-white border-b-2 border-indigo-400 bg-indigo-900/30'
+                : 'text-indigo-200 hover:text-white bg-indigo-900/10 hover:bg-indigo-900/20'
             }`}
           >
             👥 Users ({users.length})
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Content */}
       <div>
@@ -176,6 +207,34 @@ export function DashboardContent() {
               </div>
             ) : (
               <StoryList stories={stories} showActions={true} />
+            )}
+          </>
+        ) : activeTab === 'favorites' ? (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-white">
+                Your Favorite Stories
+              </h2>
+            </div>
+
+            {favorites.length === 0 ? (
+              <div className="text-center py-20 bg-indigo-900/10 rounded-2xl border border-indigo-500/10">
+                <div className="text-6xl mb-4">❤️</div>
+                <h3 className="text-xl font-semibold text-indigo-200 mb-2">
+                  No favorites yet
+                </h3>
+                <p className="text-indigo-300/60 mb-6">
+                  Stories you like will appear here. Start exploring and save your favorites!
+                </p>
+                <button
+                  onClick={() => router.push('/browse')}
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg font-medium transition-all"
+                >
+                  Browse Stories
+                </button>
+              </div>
+            ) : (
+              <StoryList stories={favorites} showActions={false} />
             )}
           </>
         ) : (

@@ -22,35 +22,35 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // Initialize App Check with reCAPTCHA v3
-if (typeof window !== 'undefined') {
-  // Enable debug mode in development
-  if (process.env.NODE_ENV === 'development') {
-    // @ts-ignore - Firebase App Check debug token
-    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-  }
+// if (typeof window !== 'undefined') {
+//   // Enable debug mode in development
+//   if (process.env.NODE_ENV === 'development') {
+//     // @ts-ignore - Firebase App Check debug token
+//     self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+//   }
 
-  // Only initialize App Check once
-  try {
-    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+//   // Only initialize App Check once
+//   try {
+//     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     
-    if (!siteKey) {
-      console.warn('⚠️ NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set. App Check will not be initialized.');
-    } else {
-      const appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider(siteKey),
+//     if (!siteKey) {
+//       console.warn('⚠️ NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set. App Check will not be initialized.');
+//     } else {
+//       const appCheck = initializeAppCheck(app, {
+//         provider: new ReCaptchaV3Provider(siteKey),
         
-        // Auto-refresh tokens before they expire
-        isTokenAutoRefreshEnabled: true
-      });
+//         // Auto-refresh tokens before they expire
+//         isTokenAutoRefreshEnabled: true
+//       });
       
-      console.log('✅ Firebase App Check initialized with reCAPTCHA v3');
-    }
-  } catch (error: any) {
-    // Ignore if already initialized
-    if (error?.code !== 'app-check/already-initialized') {
-      console.error('❌ Error initializing App Check:', error);
-    }
-  }
-}
+//       console.log('✅ Firebase App Check initialized with reCAPTCHA v3');
+//     }
+//   } catch (error: any) {
+//     // Ignore if already initialized
+//     if (error?.code !== 'app-check/already-initialized') {
+//       console.error('❌ Error initializing App Check:', error);
+//     }
+//   }
+// }
 
 export { app };

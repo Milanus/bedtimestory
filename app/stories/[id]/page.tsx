@@ -44,7 +44,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
   };
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900">
+    <div className="min-h-screen py-12">
       <div className="max-w-4xl mx-auto px-4">
         {/* Back button */}
         <Link

@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function NewStoryPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900">
+    <div className="min-h-screen">
       {/* Starry background effect */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 text-yellow-200/30 text-2xl animate-pulse">✦</div>

@@ -7,7 +7,7 @@ export default async function BrowsePage() {
   const stories = await getStories();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900">
+    <div className="min-h-screen">
       {/* Starry background effect */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 text-yellow-200/30 text-2xl animate-pulse">✦</div>
@@ -23,18 +23,15 @@ export default async function BrowsePage() {
         <Header />
 
         {/* Hero Section */}
-        <section className="py-12 px-6 text-center">
+        <section className="py-12 px-6 text-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
           <div className="max-w-3xl mx-auto">
-            <span className="inline-block px-4 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium mb-4 border border-indigo-500/20">
-              Discover Magic
-            </span>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
               Browse Stories by
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 {' '}Category
               </span>
             </h2>
-            <p className="text-lg text-indigo-200/70 max-w-xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-white max-w-xl mx-auto leading-relaxed font-bold" >
               Find the perfect bedtime story by exploring our magical categories. 
               Each tale awaits to whisk you away to dreamland.
             </p>

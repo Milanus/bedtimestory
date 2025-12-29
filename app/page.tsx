@@ -6,7 +6,7 @@ export default async function Home() {
   const stories = await getStories();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900">
+    <div className="min-h-screen">
       {/* Starry background effect */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 text-yellow-200/30 text-2xl animate-pulse">✦</div>
@@ -23,7 +23,7 @@ export default async function Home() {
         <Header />
 
         {/* Hero Section */}
-        <section className="py-12 px-6 text-center">
+        <section className="py-12 px-6 text-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
           <div className="max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
               Magical Stories for
@@ -31,7 +31,7 @@ export default async function Home() {
                 {' '}Peaceful Nights
               </span>
             </h2>
-            <p className="text-lg text-indigo-200/70 max-w-xl mx-auto">
+            <p className="text-xl md:text-2xl text-white max-w-xl mx-auto leading-relaxed font-bold" style={{ WebkitTextStroke: '1px rgba(0,0,0,0.5)' }}>
               Discover enchanting bedtime stories shared by dreamers around the world. 
               Read, share, and drift off to sleep with tales of wonder.
             </p>
